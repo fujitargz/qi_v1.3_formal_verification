@@ -1,0 +1,47 @@
+let PRx(
+    c: channel,
+    spkCA: spkey,
+    certPTx: certificate,
+    spkPTx: spkey,
+    dummyCert: certificate
+) =
+    (* Ping phase *)
+    in(c, DigitalPing': DigitalPingPacket);
+    out(c, SIG);
+    (* Configuration phase *)
+    event sendID(BDID);
+    out(c, ID(MajorVer, MinorVer, MC, BDID));
+    out(c, CFG);
+    in(c, ACK'_CFG: ACKPacket);
+    out(c, FOD);
+    in(c, ACK'_FOD: ACKPacket);
+    out(c, SRQ);
+    in(c, ACK'_SRQ: ACKPacket);
+    out(c, SRQen);
+    in(c, ACK'_SRQen: ACKPacket);
+    out(c, CE);
+    out(c, RP).
+
+let PTx(
+    c: channel,
+    IDPTx: PTxID,
+    spkPTx: spkey,
+    sskPTx: sskey,
+    certPTx: certificate
+) =
+    (* Ping phase *)
+    out(c, DigitalPing);
+    in(c, SIG': SIGPacket);
+    (* Configuration phase *)
+    in(c, (MajorVer': MajorVersion, MinorVer':MinorVersion, MC': ManufacturerCode, BDID': BasicDeviceIdentifier));
+    in(c, CFG': CFGPacket);
+    out(c, ACK);
+    in(c, FOD': FODPacket);
+    out(c, ACK);
+    in(c, SRQ': SRQPacket);
+    out(c, ACK);
+    in(c, SRQen: SRQenPacket);
+    out(c, ACK);
+    in(c, CE': CEPacket);
+    in(c, RP': RPPacket);
+    event recieveID(BDID').

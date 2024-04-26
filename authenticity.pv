@@ -1,0 +1,20 @@
+free c: channel.
+
+(* Queries *)
+query attacker(sskPTx).
+query key: spkey; event(successAuth(key)).
+query id: BasicDeviceIdentifier; event(recieveID(id)).
+query id: BasicDeviceIdentifier; event(recieveID(id)) ==> event(sendID(id)).
+
+process
+    (* setup *)
+    new sskCA: sskey;
+    let spkCA = spk(sskCA) in out(c, spkCA);
+    let spkPTx = spk(sskPTx) in out(c, spkPTx);
+    let productUnitCert = cert(IDPTx, spkPTx, sign((IDPTx, spkPTx), sskCA)) in
+    new dummyIDPTx: PTxID;
+    new dummySskPTx: sskey;
+    let dummySpkPTx = spk(dummySskPTx) in out (c, dummySpkPTx);
+    let dummyProductUnitCert = cert(dummyIDPTx, dummySpkPTx, sign((dummyIDPTx, dummySpkPTx), sskCA)) in
+
+    PRx(c, spkCA, productUnitCert, spkPTx, dummyProductUnitCert) | PTx(c, IDPTx, spkPTx, sskPTx, productUnitCert)
